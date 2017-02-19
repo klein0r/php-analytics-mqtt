@@ -1,0 +1,12 @@
+{
+  "name": "klein0r/analytics-mqtt",
+  "description": "Push your analytics data to MQTT",
+  "version": "0.0.1",
+  "license": [
+    "MIT"
+  ],
+  "require": {
+    "google/apiclient": "^2.1",
+    "bluerhinos/phpmqtt": "dev-master"
+  }
+}
