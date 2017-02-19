@@ -2,6 +2,7 @@
 
 $serviceAccountEmail = getenv('ANALYTICS_MQTT_SERVICE_ACCOUNT_EMAIL');
 $profile = getenv('ANALYTICS_MQTT_ANALYTICS_PROFILE_ID');
+$mqttBroker = getenv('ANALYTICS_MQTT_BROKER_SERVER');
 
 require_once 'vendor/autoload.php';
 require_once 'vendor/bluerhinos/phpmqtt/phpMQTT.php';
@@ -15,12 +16,12 @@ class GoogleToMQTTServiceWrapper
     private $analyticsRef = null;
     private $mqtt = null;
 
-    function __construct($serviceAccountEmail, $profileId)
+    function __construct($serviceAccountEmail, $profileId, $mqttBroker)
     {
         $this->serviceAccountEmail = $serviceAccountEmail;
         $this->profileId = $profileId;
 
-        $this->mqtt = new phpMQTT('192.168.178.11', 1883, self::SERVICE_NAME);
+        $this->mqtt = new phpMQTT($mqttBroker, 1883, self::SERVICE_NAME);
     }
 
     /**
@@ -107,7 +108,8 @@ class GoogleToMQTTServiceWrapper
 
 $obj = new GoogleToMQTTServiceWrapper(
     $serviceAccountEmail,
-    $profile
+    $profile,
+    $mqttBroker
 );
 
 echo $obj->publishResults('/Web/Analytics/Last7Days', '7daysAgo', 'today', 'ga:pageviews') . PHP_EOL;
