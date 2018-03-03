@@ -33,6 +33,8 @@ services:
             - ANALYTICS_MQTT_SERVICE_ACCOUNT_EMAIL=account-123@*.iam.gserviceaccount.com
             - ANALYTICS_MQTT_ANALYTICS_PROFILE_ID=12345678
             - ANALYTICS_MQTT_BROKER_SERVER=192.168.1.100
+            - ANALYTICS_MQTT_BROKER_USER=mqttUsername
+            - ANALYTICS_MQTT_BROKER_PASSWORD=T0pSecr3t
         volumes:
             - ./auth.json:/opt/analytics-mqtt/auth.json
 ```

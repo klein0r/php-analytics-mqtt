@@ -3,6 +3,8 @@
 $serviceAccountEmail = getenv('ANALYTICS_MQTT_SERVICE_ACCOUNT_EMAIL');
 $profile = getenv('ANALYTICS_MQTT_ANALYTICS_PROFILE_ID');
 $mqttBroker = getenv('ANALYTICS_MQTT_BROKER_SERVER');
+$mqttUser = getenv('ANALYTICS_MQTT_BROKER_USER') ?: null;
+$mqttPassword = getenv('ANALYTICS_MQTT_BROKER_PASSWORD') ?: null;
 
 require_once 'vendor/autoload.php';
 require_once 'vendor/bluerhinos/phpmqtt/phpMQTT.php';
@@ -14,14 +16,31 @@ class GoogleToMQTTServiceWrapper
     private $serviceAccountEmail = null;
     private $profileId = null;
     private $analyticsRef = null;
-    private $mqtt = null;
 
-    function __construct($serviceAccountEmail, $profileId, $mqttBroker)
+    private $mqtt = null;
+    private $mqttUser = null;
+    private $mqttPassword = null;
+
+    function __construct($serviceAccountEmail, $profileId, $mqttBroker, $mqttUser = null, $mqttPassword = null)
     {
+        if (!$serviceAccountEmail) {
+            throw new InvalidArgumentException('Service Account Mail cannot be empty');
+        }
+
+        if (!$profileId) {
+            throw new InvalidArgumentException('Profile Id cannot be empty');
+        }
+
+        if (!$mqttBroker) {
+            throw new InvalidArgumentException('MQTT Broker cannot be empty');
+        }
+
         $this->serviceAccountEmail = $serviceAccountEmail;
         $this->profileId = $profileId;
 
-        $this->mqtt = new phpMQTT($mqttBroker, 1883, self::SERVICE_NAME);
+        $this->mqtt = new \Bluerhinos\phpMQTT($mqttBroker, 1883, self::SERVICE_NAME);
+        $this->mqttUser = $mqttUser;
+        $this->mqttPassword = $mqttPassword;
     }
 
     /**
@@ -39,7 +58,7 @@ class GoogleToMQTTServiceWrapper
             $this->analyticsRef = new Google_Service_Analytics($client);
 
             if ($client->isAccessTokenExpired()) {
-                $client->refreshTokenWithAssertion();
+                $client->fetchAccessTokenWithAssertion();
             }
         }
 
@@ -95,7 +114,7 @@ class GoogleToMQTTServiceWrapper
 
     protected function publishValue($path, $value)
     {
-        if ($value && $this->mqtt->connect()) {
+        if ($value && $this->mqtt->connect(true, null, $this->mqttUser, $this->mqttPassword)) {
             $this->mqtt->publish($path, (string)$value);
             $this->mqtt->close();
 
@@ -109,7 +128,9 @@ class GoogleToMQTTServiceWrapper
 $obj = new GoogleToMQTTServiceWrapper(
     $serviceAccountEmail,
     $profile,
-    $mqttBroker
+    $mqttBroker,
+    $mqttUser,
+    $mqttPassword
 );
 
 echo $obj->publishResults('/Web/Analytics/Last7Days', '7daysAgo', 'today', 'ga:pageviews') . PHP_EOL;
