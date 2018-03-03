@@ -16,6 +16,7 @@ This class helps you to push your Google Analytics Data to an MQTT broker (like 
 - Copy the auth.json file to the root directory of this installation / beside run.php 
 - Allow that user to access your Google Analytics Data and set the property id to environment variable ANALYTICS_MQTT_ANALYTICS_PROFILE_ID
 - Setup MQTT and set the broker IP/hostname to environment variable ANALYTICS_MQTT_BROKER_SERVER
+- (Setup MQTT username and password to environment variables ANALYTICS_MQTT_BROKER_USER and ANALYTICS_MQTT_BROKER_PASSWORD)
 
 ## Docker
 
